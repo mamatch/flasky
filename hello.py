@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, render_template
+from flask import Flask, request, make_response, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from flask_wtf import FlaskForm
@@ -23,12 +23,11 @@ def internal_server_error(e):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    name = None
     form = NameForm()
     if form.validate_on_submit(): # Verify if the form has been submitted
-        name = form.name.data
-        form.name.data = ''
-    return render_template('index.html', current_time=datetime.utcnow(), form=form, name=name)
+        session['name'] = form.name.data
+        return redirect(url_for('index'))
+    return render_template('index.html', current_time=datetime.utcnow(), form=form, name=session.get('name'))
 
 
 @app.route('/user/<string:name>')
