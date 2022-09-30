@@ -24,6 +24,11 @@ moment = Moment(app)
 db = SQLAlchemy(app)
 
 
+@app.shell_context_processor  # Add context to the shell to not import always
+def make_shell_context():
+    return dict(db=db, User=User, Role=Role)
+
+
 # ------------------- View functions --------------------
 
 
