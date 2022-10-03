@@ -10,6 +10,7 @@ from wtforms.validators import DataRequired
 
 from datetime import datetime
 import os
+from threading import Thread
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -46,6 +47,11 @@ def make_shell_context():
 # Mail functions
 
 
+def send_async_mail(app, msg):
+    with app.app_context():
+        mail.send(msg)
+
+
 def send_mail(to, subject, template, **kwargs):
     msg = Message(
         app.config["FLASKY_MAIL_SUBJECT_PREFIX"] + subject,
@@ -54,7 +60,9 @@ def send_mail(to, subject, template, **kwargs):
     )
 
     msg.html = render_template(template + ".html", **kwargs)
-    mail.send(msg)
+    thr = Thread(target=send_async_mail, args=[app, msg])
+    thr.start()
+    return thr
 
 
 # ------------------- View functions --------------------
